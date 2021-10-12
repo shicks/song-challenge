@@ -39,7 +39,7 @@
   <div id="song"></div>
 </div>
 
-<script>
+<script type="module">
 const songData = `
 cNkMtIn8KQc 2:54 I Saw Her Standing There
 MA5DkiVKSlM 2:05 P.S. I Love You
@@ -67,14 +67,20 @@ fR4HjTH_fTM 3:39 The Long And Winding Road
 90M60PzmxEE 3:49 Across The Universe
 `;
 
-const songs = songData.split(/\n+/g).map(s => s.replace(/#.*/, '').trim()).filter(s => s).map(
+let songs;
+
+function initSongs() {
+  songs = songData.split(/\n+/g).map(s => s.replace(/#.*/, '').trim()).filter(s => s).map(
   s => {
     const match = /^([-a-zA-Z0-9_]+) (\d+):(\d\d) (.*)$/.exec(s);
     if (!match) throw `bad line: ${s}`;
     return [match[1], Number(match[2]) * 60 + Number(match[3]), match[4]];
   });
+}
+initSongs();
 
 function pickSong() {
+  if (!songs.length) initSongs();
   const i = Math.floor(Math.random() * songs.length);
   const [link, duration, name] = songs[i]
   songs.splice(i, 1);
