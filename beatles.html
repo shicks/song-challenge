@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<style>
+.video {
+  position: fixed;
+  left: 1em;
+  top: 2pc;
+  width: 560px;
+  height: 315px;
+}
+.cover {
+  background: white;
+  pointer-events: none;
+}
+#song {
+  display: none;
+}
+#song.revealed {
+  display: block;
+}
+.start {
+  position: absolute;
+  left: 246px;
+  top: 133px;
+  width: 68px;
+  height: 48px;
+}
+</style>
+
+<button id="newsong">New Song</button>
+<button id="reveal">Reveal</button>
+<div id="embed">
+  <iframe class="video" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen src="#"></iframe>
+</div>
+<div class="video cover">
+  <div class="start">
+    <svg height="100%" version="1.1" viewBox="0 0 68 48" width="100%"><path class="ytp-large-play-button-bg" d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#f00"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg>
+  </div>
+  <div id="song"></div>
+</div>
+
+<script>
+const songData = `
+cNkMtIn8KQc 2:54 I Saw Her Standing There
+MA5DkiVKSlM 2:05 P.S. I Love You
+2RicaUqd9Hg 2:36 Twist And Shout
+zx2TFk0vh1I 2:35 A Hard Day's Night
+8Goxw7VgxfA 2:21 I Feel Fine
+0soSE-RMH3s 2:44 Eight Days A Week
+XT4pwRi2JmY 2:27 I Want To Hold Your Hand
+YBcdt6DsLQA 2:27 In My Life
+wbxTlxuECJA 2:07 Eleanor Rigby
+xdcSFVXd3MU 2:25 Here, There And Everywhere
+r95-7zfgtLw 2:30 Got To Get You Into My Life
+RhoprlMxteE 2:39 Yellow Submarine
+l0zaebtU-CA 2:39 Taxman
+ytN8v3ZpYhY 2:20 Paperback Writer
+NrgmdOz227I 2:06 Yesterday
+suRl1L2U6GY 2:50 Day Tripper
+QlgNMZnLsIQ 2:03 Sgt. Pepper's Lonely Hearts Club Band
+Ru3O23zqqaE 2:35 Good Morning Good Morning
+6MbqzDm1uCo 3:26 Revolution
+0ArlUSVDQIw 2:44 Back In The U.S.S.R.
+De1LCQvbqV4 2:51 Octopus's Garden
+QDYfEBY9NM4 4:04 Let It Be
+fR4HjTH_fTM 3:39 The Long And Winding Road
+90M60PzmxEE 3:49 Across The Universe
+`;
+
+const songs = songData.split(/\n+/g).map(s => s.replace(/#.*/, '').trim()).filter(s => s).map(
+  s => {
+    const match = /^([-a-zA-Z0-9_]+) (\d+):(\d\d) (.*)$/.exec(s);
+    if (!match) throw `bad line: ${s}`;
+    return [match[1], Number(match[2]) * 60 + Number(match[3]), match[4]];
+  });
+
+function pickSong() {
+  const i = Math.floor(Math.random() * songs.length);
+  const [link, duration, name] = songs[i]
+  songs.splice(i, 1);
+  const startTime = Math.floor(Math.random() * duration);
+  const startParam = startTime < duration - 30 ? `?start=${startTime}` : '';
+  // &end=${startTime + 15} ?
+  // &autoplay ?
+  return [`https://youtube.com/embed/${link}${startParam}`, name];
+}
+
+function newSong() {
+  const iframe = document.querySelector('iframe.video');
+  const [url, name] = pickSong();
+  iframe.src = url;
+  const song = document.querySelector('#song');
+  song.classList.remove('revealed');
+  song.textContent = name;
+}
+newSong();
+
+function reveal() {
+  document.querySelector('#song').classList.add('revealed');
+}
+document.querySelector('#newsong').addEventListener('click', newSong);
+document.querySelector('#reveal').addEventListener('click', reveal);
+</script>
